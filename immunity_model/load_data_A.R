@@ -5,6 +5,8 @@
 options(StringsAsFactors=F)
 data0=read.csv("datasets/Australia_98.csv", as.is=T,head=F)
 
+
+
 # List test strains
 data1=data0[,!data0[2,]=="POST"] # Focus on prevaccination
 names(data1)=data1[1,] # Add names
@@ -16,43 +18,24 @@ test.index=c(1:nstrains)
 
 # Convert to log titres and set missing data = NA
 data1[data1=="*"]=NA
+data1[data1=="<10"]=5
 data1[,strain_names]=apply(data1[,strain_names],2,function(x){log2(as.numeric(x)/10)+1}) 
 
+#as.numeric(data1[1,strain_names])
+#as.numeric( sapply(data1[1,strain_names],function(x){log2(as.numeric(x)/10)+1}) )
 
-# Gather participants and infection years
 
-n_part=max(data1$Subject.number) # number of participants
 
-test_years=unique(data1$Sample.year) # year of testing
-test.n=length(test_years) # number of test years
+save(data1,file=paste("R_datasets/Australia_98_V.RData",sep=""))
 
-inf_years=seq(min(strain_years),max(c(test_years,strain_years))) #annual infection model
-inf.n=length(inf_years) # number of possible infecting strains
 
-# Set up list of test data for quick access
+# Load antigenic coordinate data
 
-data.Test=data1[,strain_names]
-test.list=list()
 
-for(ii in 1:n_part){
+ag.coord=read.csv("datasets/antigenic_coords.csv", as.is=T,head=T)
 
-subjectn=ii
-i.list=list()
+#plot(ag.coord$AG_y,ag.coord$AG_x,col='white')
+#text(ag.coord$AG_y,ag.coord$AG_x,ag.coord$viruses,cex=1)
 
-for(jj in 1:test.n){
-
-testyr=test_years[jj]
-dataI=data.Test[data1$Subject.number==subjectn & data1$Sample.year==testyr,]
-i.list[[jj]]=rbind(rep(testyr,nstrains),
-      dataI[,!is.na(dataI)],
-      strain_years[!is.na(dataI)],
-      strain_years[test.index[!is.na(dataI)]]-min(strain_years)+1
-      )
-
-}
-
-test.list[[ii]]=i.list
-
-save(test_years,inf_years,strain_years,n_part,test.list,file=paste("R_datasets/HaNam_data_V.RData",sep=""))
-
-}
+#dev.copy(pdf,paste("plots/antigenic_map.pdf",sep=""),width=20,height=10)
+#dev.off()
