@@ -15,24 +15,23 @@ data1=data1[-c(1,2),] # Remove duplicate row
 nstrains=length(data1)-2 # remove subject and sample year
 strain_names=names(data1)[3:(nstrains+2)]
 test.index=c(1:nstrains)
+npart=length(data1[,1])
 
 # Convert to log titres and set missing data = NA
 data1[data1=="*"]=NA
 data1[data1=="<10"]=5
 data1[,strain_names]=apply(data1[,strain_names],2,function(x){log2(as.numeric(x)/10)+1}) 
 
-#as.numeric(data1[1,strain_names])
-#as.numeric( sapply(data1[1,strain_names],function(x){log2(as.numeric(x)/10)+1}) )
+ag.coord=read.csv("datasets/antigenic_coords.csv", as.is=T,head=T)
+ag.coord=ag.coord[match(strain_names,ag.coord$viruses),]
 
-
-
-save(data1,file=paste("R_datasets/Australia_98_V.RData",sep=""))
+save(ag.coord,data1,npart,nstrains,file=paste("R_datasets/Australia_98_V.RData",sep=""))
 
 
 # Load antigenic coordinate data
 
 
-ag.coord=read.csv("datasets/antigenic_coords.csv", as.is=T,head=T)
+
 
 #plot(ag.coord$AG_y,ag.coord$AG_x,col='white')
 #text(ag.coord$AG_y,ag.coord$AG_x,ag.coord$viruses,cex=1)
