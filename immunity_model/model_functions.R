@@ -8,8 +8,8 @@ landscape.plot<-function(){
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   # Construct matrix of map coords
-  x.range=seq(floor(min(ag.coord$AG_x)),ceiling(max(ag.coord$AG_x)),1)
-  y.range=seq(floor(min(ag.coord$AG_y)),ceiling(max(ag.coord$AG_y)),1)
+  x.range=seq(floor(min(ag.coord$AG_x)),ceiling(max(ag.coord$AG_x)),0.5)
+  y.range=seq(floor(min(ag.coord$AG_y)),ceiling(max(ag.coord$AG_y)),0.5)
   points.j=expand.grid(x.range,y.range) # Define list of points to evaluate
   names(points.j)=c("agx","agy")
   npointsj=length(points.j[,1])
