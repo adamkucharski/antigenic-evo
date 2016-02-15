@@ -2,9 +2,11 @@
 # Code by Adam Kucharski (2016)
 
 
-landscape.plot<-function(){
+landscape.plot<-function(yearload){
   
   # Follows Section 1.2.3 of Supplement of Fonville et al (2015) Science
+  
+  load(paste("R_datasets/Australia_",yearload,"_V.RData",sep=""))
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   # Construct matrix of map coords
@@ -64,6 +66,8 @@ landscape.plot<-function(){
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   # Estimate antigenic surface with linear model
   
+  par(mfrow=c(3,1))
+  
   for(kk in 1:n.groups){ #Loop over groups of interest
   
     #pick a point from points.j
@@ -88,23 +92,27 @@ landscape.plot<-function(){
     pred.tableP=sapply(pred.table$pred.titre,function(x){min(max(x,0),8)})
     pred.matrix=matrix(pred.tableP,byrow=F,nrow=length(x.range))
     
+    # Calculate mean titre for each sample strain
+    group.size=length(lm.data$titre)/nstrains
+    group_m1=matrix(lm.data$titre,nrow=group.size,byrow=T)
+    mean.titre=apply(group_m1,2,function(x){mean(x[!is.na(x)])})
+    
     # Plot antigenic surface
-    par(mar = c(4,4,2,2))
+    par(mar = c(1,3,2,2))
     
     image2D(z = t(pred.matrix), x = y.range, y = x.range, zlim = c(0, 8),
-            main=paste("Landscape #",kk, ". Age ", group.names[kk],sep=""))
+            main=paste("Landscape 19",yr.load, ". Age ", group.names[kk],sep=""))
     
-    points(lm.data$agy,lm.data$agx,cex=(lm.data$titre+1),col=rgb(0,0,0,0.1))
-    
-    dev.copy(png,paste("plots/antigenic_map",kk,".png",sep=""),width=1500,height=800,res=150)
-    dev.off()
+    points(ag.coord$AG_y,ag.coord$AG_x,cex=(mean.titre+1),col=rgb(0.1,0.1,0.1),lwd=2)
+    ofs=0.05
+    text(strain_centre$AG_y+ofs,strain_centre$AG_x-ofs,labels=strain_centre$year,col=rgb(0,0,0),cex=0.6)
+    text(strain_centre$AG_y,strain_centre$AG_x,labels=strain_centre$year,col=rgb(1,1,1),cex=0.6)
+
     
   }
   
-  #npart
-  #nstrains
+  dev.copy(png,paste("plots/antigenic_map",yr.load,".png",sep=""),width=1500,height=1800,res=150)
+  dev.off()
   
-
-
 
 }
