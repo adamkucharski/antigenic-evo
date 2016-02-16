@@ -4,12 +4,17 @@
 library(plot3D)
 library(colorspace)
 
+
+# LOAD Functions
+
 setwd("~/Documents/antigenic-landscapes/immunity_model/")
+source("model_functions.R")  #Set up functions
 
 
-# LOAD DATA
-#source("load_data_A.R")  #Set up data
 
-#load("R_datasets/Australia_98_V.RData")
+dataload="Fluscape_08"
+#dataload="Australia_98"
 
-
+landscape.build(dataload,0.5)
+landscape.plot(dataload,radius1=3,2009)
+titre.plot(dataload)
