@@ -63,9 +63,9 @@ save(ag.coord,data1,npart,nstrains,strain_years,yr.load,strain_centre,file=paste
 
 
 
-ag.coord0=ag.coord[strain_years=="1997",]
-plot(ag.coord$AG_y,ag.coord$AG_x,col='white')
-text(ag.coord0$AG_y,ag.coord0$AG_x,ag.coord0$viruses,cex=1)
+#ag.coord0=ag.coord[strain_years=="1997",]
+#plot(ag.coord$AG_y,ag.coord$AG_x,col='white')
+#text(ag.coord0$AG_y,ag.coord0$AG_x,ag.coord0$viruses,cex=1)
 
 #dev.copy(pdf,paste("plots/antigenic_map.pdf",sep=""),width=20,height=10)
 #dev.off()
