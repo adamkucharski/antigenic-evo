@@ -16,5 +16,6 @@ dataload="Fluscape_08"
 #dataload="Australia_98"
 
 landscape.build(dataload,0.5)
-landscape.plot(dataload,radius1=3,2009)
+landscape.plot(dataload,radius1=5,2009)
 titre.plot(dataload)
+proct.plot(dataload)

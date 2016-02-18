@@ -178,3 +178,36 @@ titre.plot<-function(Data.load){
   
 }
 
+proct.plot<-function(Data.load){
+  
+  col.palette=rainbow_hcl(3, c = 100, l = 60)
+  
+  par(mfrow=c(1,1))
+  par(mar = c(5,5,2,2))
+  
+  for(kk in 1:3){
+    
+    load(paste("R_datasets/maps/predC_",Data.load,"_gp",kk,".RData",sep=""))  
+    load(paste("R_datasets/maps/AGmap_",Data.load,"_gp",kk,".RData",sep=""))  
+    
+    proct<-probability.protection(2^pred1*10)
+    if(kk==1){plot(proct,type="l",ylim=c(0,1),lwd=2,col=col.palette[kk],ylab="AB mediated protection")}
+    else{lines(proct,lwd=2,col=col.palette[kk])}
+    
+    
+    text(x=round(0.85*length(proct)),y=4-0.4*kk,group.names[kk],adj=0,col=col.palette[kk])
+    
+  }
+  
+  dev.copy(pdf,paste("plots/vaccine",Data.load,".pdf",sep=""),width=10,height=6)
+  dev.off()
+  
+}
+
+#antibody protection function for an individual with a given titre T
+#a (alpha) and b (beta) are the log(50% PT) and steepness of the function
+#Defaults values are taken from Coudeville et al. (model ALL) 
+probability.protection<-function(T,a=2.844,b=1.299)
+{
+  return(1-1/(1+exp(b*(log(T)-a))))
+}
