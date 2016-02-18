@@ -11,7 +11,7 @@ landscape.build<-function(Data.load,d.step=0.5){
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   # Construct matrix of map coords
   x.range=seq(floor(min(ag.coord$AG_x)),ceiling(max(ag.coord$AG_x)),d.step)
-  y.range=seq(floor(min(ag.coord$AG_y)),ceiling(max(ag.coord$AG_y)+5),d.step)
+  y.range=seq(floor(min(ag.coord$AG_y)),ceiling(max(ag.coord$AG_y)+3),d.step)
   points.j=expand.grid(x.range,y.range) # Define list of points to evaluate
   names(points.j)=c("agx","agy")
   npointsj=length(points.j[,1])
@@ -53,6 +53,7 @@ landscape.build<-function(Data.load,d.step=0.5){
     names(lm.data)=c("agx","agy","titre")
     
     lm.data$titre=as.numeric(p.data)
+    #lm.data$titre=probability.protection(2^as.numeric(p.data)*10)
     lm.data$agx=ag.coord$AG_x
     lm.data$agy=ag.coord$AG_y
     
@@ -116,7 +117,7 @@ landscape.plot<-function(Data.load,radius1,yearload){
     par(mar = c(1,3,2,2))
     
     image2D(z = t(pred.matrix), x = y.range, y = x.range, zlim = c(0, 8),
-            main=paste("Landscape 19",yr.load, ". Age ", group.names[kk],sep=""))
+            main=paste("Landscape ",Data.load, ". Age ", group.names[kk],sep=""))
     
     points(ag.coord$AG_y,ag.coord$AG_x,cex=1.2*(mean.titre+1),col=rgb(0.1,0.1,0.1),lwd=2)
     ofs=0.05

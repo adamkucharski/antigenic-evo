@@ -63,12 +63,12 @@ load.data<-function(Data.load){
 }
 
 
-format.fluscape<-function(){
-  
+format.fluscape<-function(){ # CHECK HOW LOADED - EDIT TITRES
+  yr.load=2008
   ag.coord=read.csv("datasets/antigenic_coords_fluscape.csv", as.is=T,head=T)
   strain_years=ag.coord$yearA
   strain_names=ag.coord$viruses
-    
+  
   options(StringsAsFactors=F)
   data0=read.csv(paste("datasets/Fluscape_SupplmentalDataS1.csv",sep=""), as.is=T,head=F)
   data1=data0
@@ -79,6 +79,8 @@ format.fluscape<-function(){
   strain0=sapply(unique(data1$neut.against),function(x){x})
   
   npart=151
+  
+  data1$titers=round(sapply(data1$titers,function(x){log2(exp(as.numeric(x))/10)+1}),6)  # Make titre log2
   
   data1=data.frame(cbind(c(1:151),as.numeric(data1[1:npart,"age"]),matrix(as.numeric(data1$titers),nrow=npart)))
   names(data1)=c("subject","Age",strain_names)
