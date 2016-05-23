@@ -8,6 +8,7 @@ library(colorspace)
 # LOAD Functions
 
 setwd("~/Documents/antigenic-landscapes/immunity_model/")
+#setwd("/Users/marcbaguelin/GitHub/antigenic-landscapes/immunity_model/")
 source("model_functions.R")  #Set up functions
 
 
