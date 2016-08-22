@@ -297,7 +297,7 @@ landscape.plot<-function(Data.load,radius1,yearload,groupN=3,circleShow=F){
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-# Plot titre landscape (load from above function)
+# Plot reproduction number landscape (load from above function)
 
 build.china.matrix<-function(r0=2){
   
@@ -320,9 +320,29 @@ build.china.matrix<-function(r0=2){
 
 proct <- function(x){probability.protection(2^x*10)}
 
+strain_years <- function(){
+  
+  ag.coord=read.csv("datasets/antigenic_coords.csv", as.is=T,head=T)
+
+  # Convert antigenic coords into cluster centroids
+  strain_years=as.numeric(sapply(ag.coord$viruses,function(x){
+    a1=max(which(strsplit(x, "")[[1]]=="/"))
+    lstr=nchar(x)
+    yr1=substr(x, a1+1, lstr)
+    
+    if(nchar(yr1)>4){yr1=substr(yr1, 1, 4)}
+    year=yr1
+    if(nchar(yr1)==2 & as.numeric(yr1)>15){year=paste("19",yr1,sep="")}
+    if(nchar(yr1)==2 & as.numeric(yr1)<15){year=paste("20",yr1,sep="")}
+    year
+  }
+  ))
+  
+}
+
 reproduction.number.plot<-function(Data.load){
   
-  r.matrix <- build.china.matrix(2)
+  r.matrix <- build.china.matrix(3)
 
   # Data.load=dataload; radius1=4; yearload=2009; groupN=2; circleShow=F
   
@@ -336,12 +356,15 @@ reproduction.number.plot<-function(Data.load){
   
   # Compile R matrix
   pred.matrixR <- NA+pred.matrix*0
+  contrib.mat <- NA+pred.matrix*0
   for(xx in 1:length(x.range)){
     for(yy in 1:length(y.range)){
       
       s.u20 <- pred.matrix.U20[xx,yy]
       s.o20 <- pred.matrix.O20[xx,yy]
-      pred.matrixR[xx,yy] <- max(eigen(r.matrix*matrix(1-c(s.u20,s.u20,s.o20,s.o20),ncol=2,byrow=T))$values)
+      rmat <- r.matrix*matrix(1-c(s.u20,s.u20,s.o20,s.o20),ncol=2,byrow=T)
+      pred.matrixR[xx,yy] <- max(eigen(rmat)$values)
+      contrib.mat[xx,yy] <- sum(rmat[,1])/sum(rmat[,2])
       
     }
   }
@@ -359,8 +382,10 @@ reproduction.number.plot<-function(Data.load){
   MTy=c(245,262)
     
   image2D(z = t(pred.matrixR), x = y.range, y = x.range, xlab="antigenic dimension 1", ylab="antigenic dimension 2", zlim = c(0, 2),
-            main=paste("",sep="")) #paste("Landscape ",Data.load, ". Age ", group.names[kk],sep="")
-    
+            main=paste("",sep=""),labels="") #paste("Landscape ",Data.load, ". Age ", group.names[kk],sep="")
+
+ # image2D(z = t(contrib.mat), x = y.range, y = x.range, contour = list(levels = 1, col = "black", lwd = 2) , xlab="antigenic dimension 1", ylab="antigenic dimension 2", zlim = c(0, 3),
+  #        main=paste("",sep="")) #paste("Landscape ",Data.load, ". Age ", group.names[kk],sep="")
   
   
   ag.coordALL=read.csv("datasets/antigenic_coords.csv", as.is=T,head=T)
@@ -370,30 +395,33 @@ reproduction.number.plot<-function(Data.load){
   #                            ag.coordALL$AG_x<=max(x.range) & ag.coordALL$AG_x>=min(x.range),]
     
   # All locations
-  #points(ag.coordALL$AG_y,ag.coordALL$AG_x,xlim=c(min(y.range),max(y.range)),col="black",xlab="strain dimension 1", ylab="strain dimension 2",pch=19)
+  #
+  #plot(ag.coordALL$AG_y,ag.coordALL$AG_x,xlim=c(min(y.range),max(y.range)),col="black",xlab="strain dimension 1", ylab="strain dimension 2",pch=19)
   
   # - - - - - 
   # Post 2008 strain locations
 
-  
   # Select post XX year strains
-  years.plot=c(2009:2012)
-  ag.coordP2008 = NULL
+  strainY <- strain_years()
+  years.plot=c(1968:2011)
+  ag.coordPick = NULL;ag.coordPickY=NULL
   for(ii in 1:length(ag.coordALL$viruses)){
-    x = ag.coordALL$viruses[ii]
-    lstr=nchar(x)
-    yr1=substr(x, lstr-3, lstr)
-    yy=if(sum(as.character(years.plot)==yr1)>0){ag.coordP2008=rbind(ag.coordP2008,ag.coordALL[ii,])}
+    yy=if(sum(strainY[ii]==years.plot)>0){
+      ag.coordPick=rbind(ag.coordPick,ag.coordALL[ii,])
+      ag.coordPickY=rbind(ag.coordPickY,strainY[ii])
+    }
   }
-  
-  points(ag.coordP2008[,c("AG_y","AG_x")],pch=19,col="white")
+
+  points(ag.coordPick[,c("AG_y","AG_x")],pch=19,col="black")
   #text(ag.coordP2008$AG_y,ag.coordP2008$AG_x,labels=ag.coordP2008$viruses)
-              
+  
+  # Plot vaccine selection?   
   #vaccine2008 = ag.coordALL[match(c("A/BRISBANE/10/2007","A/URUGUAY/716/2007"),ag.coordALL$viruses),c("AG_y","AG_x")]
   #vaccine2009 = ag.coordALL[match("A/PERTH/16/2009",ag.coordALL$viruses),c("AG_y","AG_x")]
-  
+  vaccine2010 = ag.coordALL[match("A/VICTORIA/361/2011",ag.coordALL$viruses),c("AG_y","AG_x")]
   #points(vaccine2008[,1],vaccine2008[,2],col="white",pch=15,cex=2)
   #points(vaccine2009[1],vaccine2009[2],col="white",pch=19,cex=2)
+  points(vaccine2010[1],vaccine2010[2],col="white",pch=17,cex=2)
   
   # Add year text labels
   #points(ag.coord$AG_y,ag.coord$AG_x,cex=1.2*(mean.titre+1),col=rgb(0.1,0.1,0.1),lwd=2)
@@ -405,9 +433,22 @@ reproduction.number.plot<-function(Data.load){
   text(tx1,strain_centre$AG_x,labels=strain_centre$year,col=rgb(1,1,1),cex=1.2)
   
   #title(main=LETTERS[3],adj=0)
-  
   dev.copy(png,paste("plots/reproduction_number_map",Data.load,".png",sep=""),width=1500,height=1200,res=190)
   dev.off()
+  
+  #
+  pred1=apply(ag.coordPick,1,function(zz){
+    ydist=abs(y.range-as.numeric(zz[3]))
+    xdist=abs(x.range-as.numeric(zz[2]))
+    mean(pred.matrixR[xdist==min(xdist),ydist==min(ydist)])
+  })
+  
+  plot(ag.coordPickY,pred1,col="blue",xlim=c(1968,2015))
+  v2010 = match("A/PERTH/16/2009",ag.coordPick$viruses)
+  points(ag.coordPickY[v2010],pred1[v2010],col="black",pch=19,xlim=c(1968,2015))
+  
+  #text(ag.coordPickY,pred1,labels=ag.coordPick$viruses,col="black",cex=0.8)
+
   
 }
 

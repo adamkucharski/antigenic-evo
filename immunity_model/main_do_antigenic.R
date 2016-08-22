@@ -16,10 +16,10 @@ source("model_functions.R")  #Set up functions
 dataload="Fluscape_08"
 #dataload="Australia_98"
 
-landscape.build(dataload,0.5,extendD=5,bandW=25) # Generate maps
+landscape.build(dataload,0.5,extendD=7,bandW=25) # Generate maps
 
 # Plot data
-landscape.plot(dataload,radius1=4,2009,groupN=2)
+landscape.plot(dataload,radius1=4,yearload=2009,groupN=2)
 
 reproduction.number.plot(dataload)
 
