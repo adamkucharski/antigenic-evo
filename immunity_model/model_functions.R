@@ -342,7 +342,7 @@ strain_years <- function(){
 
 reproduction.number.plot<-function(Data.load){
   
-  r.matrix <- build.china.matrix(3)
+  r.matrix <- build.china.matrix(2)
 
   # Data.load=dataload; radius1=4; yearload=2009; groupN=2; circleShow=F
   
@@ -443,9 +443,11 @@ reproduction.number.plot<-function(Data.load){
     mean(pred.matrixR[xdist==min(xdist),ydist==min(ydist)])
   })
   
-  plot(ag.coordPickY,pred1,col="blue",xlim=c(1968,2015))
+  plot(ag.coordPickY,pred1,col="blue",xlim=c(1968,2012))
+  v2008 = match(c("A/BRISBANE/10/2007","A/URUGUAY/716/2007"),ag.coordPick$viruses)
   v2010 = match("A/PERTH/16/2009",ag.coordPick$viruses)
   points(ag.coordPickY[v2010],pred1[v2010],col="black",pch=19,xlim=c(1968,2015))
+  points(ag.coordPickY[v2008],pred1[v2008],col="black",pch=17,xlim=c(1968,2015))
   
   #text(ag.coordPickY,pred1,labels=ag.coordPick$viruses,col="black",cex=0.8)
 
