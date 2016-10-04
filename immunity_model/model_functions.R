@@ -7,67 +7,63 @@
 landscape.build<-function(Data.load,d.step=0.5,extendD=3,bandW=20){
   
   # Follows Section 1.2.3 of Supplement of Fonville et al (2015) Science
-  # Data.load = dataload ; d.step=0.5 ; extendD=3 ; bandW=20
+  # Data.load = dataload ; d.step=1 ; extendD=5 ; bandW=16 
+  # bW=22 -- 5 points within range; bW=16 -- Gives 4 points within range; bw=13 gives 3
   
   load(paste("R_datasets/",Data.load,"_V.RData",sep=""))
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   # Construct matrix of map coords
-  x.range=seq(floor(min(ag.coord$AG_x)-1),ceiling(max(ag.coord$AG_x)),d.step)
-  y.range=seq(floor(min(ag.coord$AG_y)),ceiling(max(ag.coord$AG_y)+extendD),d.step)
-  points.j=expand.grid(x.range,y.range) # Define list of points to evaluate
-  names(points.j)=c("agx","agy")
-  npointsj=length(points.j[,1])
-  aA=bandW # Define local bandwidth (set as 11 in paper)
+  x.range <- seq(floor(min(ag.coord$AG_x))-0.5,ceiling(max(ag.coord$AG_x)),d.step)
+  y.range <- seq(floor(min(ag.coord$AG_y))-1,ceiling(max(ag.coord$AG_y)+extendD),d.step)
+  points.j <- expand.grid(x.range,y.range) # Define list of points to evaluate
+  names(points.j) <- c("agx","agy")
+  npointsj <- length(points.j[,1])
+  aA <- bandW # Define local bandwidth (set as 11 in Fonville paper)
   
-  ag.weights=matrix(NA,nrow=npointsj,ncol=nstrains)
+  ag.weights <- matrix(NA,nrow=npointsj,ncol=nstrains)
   
   # How much weighting to give to strains in the fitting
   for(ii in 1:npointsj){
     for(jj in 1:nstrains){
-      a_ij=sqrt((points.j[ii,"agx"]-ag.coord[jj,"AG_x"])^2+(points.j[ii,"agy"]-ag.coord[jj,"AG_y"])^2)
-      ag.weights[ii,jj]=ifelse(a_ij<=aA,(1-(a_ij/aA)^3)^3,0) #a_ij #
+      a_ij <- sqrt((points.j[ii,"agx"]-ag.coord[jj,"AG_x"])^2+(points.j[ii,"agy"]-ag.coord[jj,"AG_y"])^2)
+      ag.weights[ii,jj] <- ifelse(a_ij<=aA,(1-(a_ij/aA)^3)^3,0) #a_ij #
     }
   }
+  max(rowSums(ag.weights==0)) # Matrix pair entries -- Need max <=6 to estimate surface
   
-  image(ag.weights)
+  # plot_ly(z = ~ag.weights) %>% add_surface()
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   # Set up fitting data set for group of participants
-  age.list=as.numeric(data1[,2])
-  #age.gp1=c(1:npart)[age.list<=15] #define young age
-  #age.gp2=c(1:npart)[age.list>15 & age.list<=30] #define young age
-  #age.gp3=c(1:npart)[age.list>=30] #define old age
-  #group.list=list(age.gp1,age.gp2,age.gp3)
-  #group.names=c("<15","15-30","30+")
-  
-  age.gp1=c(1:npart)[age.list<=19] #define young age
-  age.gp2=c(1:npart)[age.list>19] #define young age
-  group.list=list(age.gp1,age.gp2)
-  group.names=c("<20","20+")
-  n.groups=length(group.list)
+  age.list <- as.numeric(data1[,2])
+  age.gp1 <- c(1:npart)[age.list<=19] #define young age
+  age.gp2 <- c(1:npart)[age.list>19] #define young age
+  group.list <- list(age.gp1,age.gp2)
+  group.names <- c("<20","20+")
+  n.groups <- length(group.list)
   
   lm.data.group=NULL
   
   for(kk in 1:n.groups){ #Loop of groups of interest
     
-    lm.d0=NULL
+    lm.d0 <- NULL
    
     for(ii in group.list[[kk]]){ # Gather data for all relevant participants
   
-    p.data=data1[ii,3:(nstrains+2)]
-    lm.data=data.frame(matrix(NA,nrow=nstrains,ncol=3))
+    p.data <- data1[ii,3:(nstrains+2)]
+    lm.data <- data.frame(matrix(NA,nrow=nstrains,ncol=3))
     names(lm.data)=c("agx","agy","titre")
     
-    lm.data$titre=as.numeric(p.data)
+    lm.data$titre <- as.numeric(p.data)
     #lm.data$titre=probability.protection(2^as.numeric(p.data)*10)
-    lm.data$agx=ag.coord$AG_x
-    lm.data$agy=ag.coord$AG_y
+    lm.data$agx <- ag.coord$AG_x
+    lm.data$agy <- ag.coord$AG_y
     
-    lm.d0=rbind(lm.d0,lm.data)
+    lm.d0 <- rbind(lm.d0,lm.data)
   }
   
-  lm.data.group[[kk]]=lm.d0
+  lm.data.group[[kk]] <- lm.d0
     
   }
     
@@ -76,25 +72,31 @@ landscape.build<-function(Data.load,d.step=0.5,extendD=3,bandW=20){
   
   for(kk in 1:n.groups){ #Loop over groups of interest
   
-    #pick a point from points.j
+    #iterate through point from points.j
     pred.table=data.frame(matrix(NA,nrow=npointsj,ncol=3))
     names(pred.table)=c("agx","agy","pred.titre")
     lm.data=lm.data.group[[kk]]
     
+    lm.data[lm.data$titre==0,"titre"]=-1
+    
     for(pp in 1:npointsj){
     
-      agW=rep(ag.weights[pp,],length(group.list[[kk]]))
+      agW=rep(ag.weights[pp,],length(group.list[[kk]])) # specify weights for fitting
       
-      fit.model<-lm(titre ~ agx*agy,data=lm.data,weights=agW)
+      fit.model <- lm(titre ~ agx*agy,data=lm.data,weights=agW)
       #summary(fit.model); predict(fit.model,newdata=points.j[pp,])
       
       # predict titre for that point
-      pred.table[pp,]=c(points.j[pp,],predict(fit.model,newdata=points.j[pp,]))
+      pred.table[pp,] <- c(points.j[pp,],predict(fit.model,newdata=points.j[pp,]))
     
     }
     
-    pred.tableP=sapply(pred.table$pred.titre,function(x){min(max(x,0),8)})
-    pred.matrix=matrix(pred.tableP,byrow=F,nrow=length(x.range))
+    pred.tableP <- sapply(pred.table$pred.titre,function(x){min(max(x,0),8)}) # Censor data
+    pred.matrix <- matrix(pred.tableP,byrow=F,nrow=length(x.range))
+    
+    #plot_ly(z = ~pred.matrix) %>% add_surface()
+    #plot_ly(x = ~-lm.data$agx, y = ~lm.data$agy, z = ~lm.data$titre) %>% add_markers()
+    #points.j[420:440,]
     
     save(pred.matrix,lm.data,x.range,y.range,group.names,file=paste("R_datasets/maps/AGmap_",Data.load,"_gp",kk,".RData",sep=""))
   }
@@ -107,7 +109,7 @@ landscape.build<-function(Data.load,d.step=0.5,extendD=3,bandW=20){
 cross.validation <- function(Data.load,d.step=0.5,extendD=3,bandW=20, Nsamp = 10, bootstrap = 5){
   
   # Follows Section 1.2.5 of Supplement of Fonville et al (2015) Science
-  # Data.load = dataload ; d.step=1 ; extendD=3 ; bandW=20; bootstrap = 5; Nsamp = 10
+  # Data.load = dataload ; d.step=1 ; extendD=3 ; bandW=20; bootstrap = 5; Nsamp = 20
   
   load(paste("R_datasets/",Data.load,"_V.RData",sep=""))
   
@@ -131,7 +133,7 @@ cross.validation <- function(Data.load,d.step=0.5,extendD=3,bandW=20, Nsamp = 10
   }
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-  # Sample 10 random individuals and calculate titres
+  # Sample random individuals and calculate titres
   
   lm.data.group=NULL
   partN = length(data1$subject)
@@ -159,56 +161,60 @@ cross.validation <- function(Data.load,d.step=0.5,extendD=3,bandW=20, Nsamp = 10
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   # Estimate antigenic surface with linear model and calculate error
   
-  rmsq.error.tab = NULL
+  rmsq.error.tab = 0
   
   for(kk in 1:bootstrap){ #Loop over boostrap groups
     
     #pick a point from points.j
-    pred.table=data.frame(matrix(NA,nrow=npointsj,ncol=3))
-    names(pred.table)=c("agx","agy","pred.titre")
-    lm.data=lm.data.group[[kk]]
+    pred.table <- data.frame(matrix(NA,nrow=npointsj,ncol=3))
+    names(pred.table) <- c("agx","agy","pred.titre")
+    lm.data <- lm.data.group[[kk]]
     
-    # pick training data
-    option.L = c(1:length(lm.data$titre))
-    train.picks = sapply(sort(sample(1:9,6)),function(x){ seq(x,9*Nsamp,9) }) # Need to pick groups of viruses
-    dim(train.picks)=NULL; train.picks = sort(train.picks)
-    test.picks = option.L[-train.picks]
-    subset.data = lm.data.group
+    # Define training/test split for data
+    option.L <- c(1:length(lm.data$titre))
+    
+    # pick training data on 7 viruses
+    train.picks <- (1:9) %>% sample(5) %>% sort  %>%  sapply(function(x){ seq(x,9*Nsamp,9) }) %>% c %>% sort # Need to pick groups of viruses
+
+    # pick training data on individuals
+    #sampleN <- round(0.75*Nsamp)
+    #train.picks <- (1:Nsamp) %>% sample(sampleN) %>% sort  %>% sapply(function(x){ (9*(x-1)+1):(9*x) }) %>% c %>% sort
+    test.picks <- option.L[-train.picks]
+    subset.data <- lm.data.group
     
     for(pp in 1:npointsj){
       
-      agW=rep(ag.weights[pp,],length(picks))
-      agW = agW[train.picks] # Only pick weights for training strains
-      fit.model<-lm(titre ~ agx*agy,data=lm.data[train.picks,],weights=agW)
+      agW <- rep(ag.weights[pp,],length(option.L))
+      agW <- agW[train.picks] # Only pick weights for training strains
+      fit.model <- lm(titre ~ agx:agy,data=lm.data[train.picks,],weights=agW)
       #summary(fit.model); predict(fit.model,newdata=points.j[pp,])
       
       # predict titre for that point
-      pred.table[pp,]=c(points.j[pp,],predict(fit.model,newdata=points.j[pp,]))
+      pred.table[pp,] <- c(points.j[pp,],predict(fit.model,newdata=points.j[pp,]))
       
     }
     
-    pred.tableP=sapply(pred.table$pred.titre,function(x){min(max(x,0),8)})
-    pred.matrix=matrix(pred.tableP,byrow=F,nrow=length(x.range))
+    pred.tableP <- sapply(pred.table$pred.titre,function(x){min(max(x,0),8)})
+    pred.matrix <- matrix(pred.tableP,byrow=F,nrow=length(x.range))
     
     # calculate error in test data by matching location in map
-    test.data = lm.data[test.picks,]
-    xMatch = sapply(test.data$agx,function(x){ c(1:length(x.range))[abs(x-x.range)==min(abs(x-x.range)) ] })
-    yMatch = sapply(test.data$agy,function(x){ c(1:length(y.range))[abs(x-y.range)==min(abs(x-y.range)) ] })
+    test.data <- lm.data[test.picks,]
+    xMatch <- sapply(test.data$agx,function(x){ c(1:length(x.range))[abs(x-x.range)==min(abs(x-x.range)) ] })
+    yMatch <- sapply(test.data$agy,function(x){ c(1:length(y.range))[abs(x-y.range)==min(abs(x-y.range)) ] })
 
-    p.test = NULL
+    p.test <- NULL
     for(ii in 1:length(test.picks)){
       
-      p.test = c(p.test, (test.data[ii,"titre"]-pred.matrix[xMatch[ii],yMatch[ii]])^2)# Pick out nearest point in matrix
+      p.test <- c(p.test, (test.data[ii,"titre"]-pred.matrix[xMatch[ii],yMatch[ii]])^2)# Pick out nearest point in matrix
     }
     
-    rmsq.error = sqrt(sum(p.test))
-    rmsq.error.tab = c(rmsq.error.tab,rmsq.error)
+    rmsq.error <- sum(p.test)
+    rmsq.error.tab <- rmsq.error.tab + rmsq.error
 
     #save(pred.matrix,lm.data,x.range,y.range,group.names,file=paste("R_datasets/maps/ValMap_",Data.load,"_gp",kk,".RData",sep=""))
   }
   
-  mean(rmsq.error.tab)
-  
+  sqrt(rmsq.error.tab)
   
 }
 
@@ -259,7 +265,7 @@ landscape.plot<-function(Data.load,radius1,yearload,groupN=3,circleShow=F){
     
     # Points of interest
     #points(ag.coord$AG_y,ag.coord$AG_x,cex=1.2*(mean.titre+1),col=rgb(0.1,0.1,0.1),lwd=2)
-    ofs=0.03
+    ofs=0.02
     tx1=strain_centre$AG_y
     tx1[1]=tx1[1]+1
     text(tx1+ofs,strain_centre$AG_x-ofs,labels=strain_centre$year,col="white",cex=1.2)
@@ -291,7 +297,7 @@ landscape.plot<-function(Data.load,radius1,yearload,groupN=3,circleShow=F){
     }
   }
   
-  dev.copy(png,paste("plots/antigenic_map",Data.load,".png",sep=""),width=1500,height=1800,res=190)
+  dev.copy(png,paste("plots/antigenic_map",Data.load,".png",sep=""),width=1500,height=1800,res=180)
   dev.off()
 
 }
@@ -340,9 +346,9 @@ strain_years <- function(){
   
 }
 
-reproduction.number.plot<-function(Data.load){
+reproduction.number.plot<-function(Data.load,rR=2){
   
-  r.matrix <- build.china.matrix(2)
+  r.matrix <- build.china.matrix(rR)
 
   # Data.load=dataload; radius1=4; yearload=2009; groupN=2; circleShow=F
   
@@ -403,7 +409,7 @@ reproduction.number.plot<-function(Data.load){
 
   # Select post XX year strains
   strainY <- strain_years()
-  years.plot=c(1968:2011)
+  years.plot=c(2008:2011)
   ag.coordPick = NULL;ag.coordPickY=NULL
   for(ii in 1:length(ag.coordALL$viruses)){
     yy=if(sum(strainY[ii]==years.plot)>0){
@@ -413,7 +419,7 @@ reproduction.number.plot<-function(Data.load){
   }
 
   points(ag.coordPick[,c("AG_y","AG_x")],pch=19,col="black")
-  #text(ag.coordP2008$AG_y,ag.coordP2008$AG_x,labels=ag.coordP2008$viruses)
+  #text(ag.coordPick$AG_y,ag.coordPick$AG_x,labels=ag.coordPick$viruses)
   
   # Plot vaccine selection?   
   #vaccine2008 = ag.coordALL[match(c("A/BRISBANE/10/2007","A/URUGUAY/716/2007"),ag.coordALL$viruses),c("AG_y","AG_x")]
@@ -421,11 +427,11 @@ reproduction.number.plot<-function(Data.load){
   vaccine2010 = ag.coordALL[match("A/VICTORIA/361/2011",ag.coordALL$viruses),c("AG_y","AG_x")]
   #points(vaccine2008[,1],vaccine2008[,2],col="white",pch=15,cex=2)
   #points(vaccine2009[1],vaccine2009[2],col="white",pch=19,cex=2)
-  points(vaccine2010[1],vaccine2010[2],col="white",pch=17,cex=2)
+  #points(vaccine2010[1],vaccine2010[2],col="white",pch=17,cex=2)
   
   # Add year text labels
   #points(ag.coord$AG_y,ag.coord$AG_x,cex=1.2*(mean.titre+1),col=rgb(0.1,0.1,0.1),lwd=2)
-  ofs=0.03
+  ofs=0.02
   tx1=strain_centre$AG_y
   tx1[1]=tx1[1]+1
   text(tx1+ofs,strain_centre$AG_x-ofs,labels=strain_centre$year,col=rgb(0,0,0),cex=1.2)
@@ -433,7 +439,7 @@ reproduction.number.plot<-function(Data.load){
   text(tx1,strain_centre$AG_x,labels=strain_centre$year,col=rgb(1,1,1),cex=1.2)
   
   #title(main=LETTERS[3],adj=0)
-  dev.copy(png,paste("plots/reproduction_number_map",Data.load,".png",sep=""),width=1500,height=1200,res=190)
+  dev.copy(png,paste("plots/reproduction_number_map",Data.load,".png",sep=""),width=1500,height=1200,res=180)
   dev.off()
   
   #

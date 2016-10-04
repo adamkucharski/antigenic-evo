@@ -3,7 +3,8 @@
 
 library(plot3D)
 library(colorspace)
-
+library(plotly)
+library(magrittr)
 
 # LOAD Functions
 
@@ -16,12 +17,12 @@ source("model_functions.R")  #Set up functions
 dataload="Fluscape_08"
 #dataload="Australia_98"
 
-landscape.build(dataload,0.5,extendD=5,bandW=25) # Generate maps
+landscape.build(dataload,d.step=1,extendD=5,bandW=22) # Generate maps
 
 # Plot data
-landscape.plot(dataload,radius1=25,yearload=2009,groupN=2)
+landscape.plot(dataload,radius1=5,yearload=2009,groupN=2)
 
-reproduction.number.plot(dataload)
+reproduction.number.plot(dataload,rR=2)
 
 #titre.plot(dataload)
 #proct.plot(dataload)
@@ -30,9 +31,15 @@ reproduction.number.plot(dataload)
 # Cross validate to find bandwidth
 
 store.crossVal = NULL
-for(kk in seq(26,30,1)){
-  rmsq=cross.validation(Data.load=dataload,d.step=0.5,extendD=0,bandW=kk, Nsamp = 30, bootstrap = 200)
+for(kk in seq(5,70,5)){
+  rmsq=cross.validation(Data.load=dataload,d.step=0.5,extendD=0,bandW=kk, Nsamp = 10, bootstrap = 100)
   store.crossVal=cbind(store.crossVal,c(kk,rmsq))
 }
 
 write.csv(store.crossVal,"output_data/storeCross.csv")
+
+# Plot cross validation
+
+data <- read.csv("output_data/storeCross.csv")
+data <- data[,-1]
+plot(as.numeric(data[1,]),as.numeric(data[2,]))
