@@ -80,7 +80,7 @@ format.fluscape<-function(){ # CHECK HOW LOADED - EDIT TITRES
   
   npart=151
   
-  data1$titers=round(sapply(data1$titers,function(x){log2(exp(as.numeric(x))/10)+1}),6)  # Make titre log2
+  data1$titers=round(sapply(data1$titers,function(x){log2(exp(as.numeric(x))/10)}),6)  # Make titre log2 -- NOTE -1 to 7 scale
   
   data1=data.frame(cbind(c(1:151),as.numeric(data1[1:npart,"age"]),matrix(as.numeric(data1$titers),nrow=npart)))
   names(data1)=c("subject","Age",strain_names)

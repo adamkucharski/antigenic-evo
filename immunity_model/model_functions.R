@@ -91,7 +91,7 @@ landscape.build<-function(Data.load,d.step=0.5,extendD=3,bandW=20){
     
     }
     
-    pred.tableP <- sapply(pred.table$pred.titre,function(x){min(max(x,0),8)}) # Censor data
+    pred.tableP <- sapply(pred.table$pred.titre,function(x){min(max(x,-100),7)}) # Censor data
     pred.matrix <- matrix(pred.tableP,byrow=F,nrow=length(x.range))
     
     #plot_ly(z = ~pred.matrix) %>% add_surface()
@@ -324,7 +324,10 @@ build.china.matrix<-function(r0=2){
   rage.matrix
 }
 
-proct <- function(x){probability.protection(2^x*10)}
+proct <- function(x){
+  #x[x==-1] <- -10
+  probability.protection(2^x*10)
+  }
 
 strain_years <- function(){
   
@@ -409,7 +412,7 @@ reproduction.number.plot<-function(Data.load,rR=2){
 
   # Select post XX year strains
   strainY <- strain_years()
-  years.plot=c(2008:2011)
+  years.plot=c(2009:2011)
   ag.coordPick = NULL;ag.coordPickY=NULL
   for(ii in 1:length(ag.coordALL$viruses)){
     yy=if(sum(strainY[ii]==years.plot)>0){
@@ -449,11 +452,11 @@ reproduction.number.plot<-function(Data.load,rR=2){
     mean(pred.matrixR[xdist==min(xdist),ydist==min(ydist)])
   })
   
-  plot(ag.coordPickY,pred1,col="blue",xlim=c(1968,2012))
+  #plot(ag.coordPickY,pred1,col="blue",xlim=c(1968,2012))
   v2008 = match(c("A/BRISBANE/10/2007","A/URUGUAY/716/2007"),ag.coordPick$viruses)
   v2010 = match("A/PERTH/16/2009",ag.coordPick$viruses)
-  points(ag.coordPickY[v2010],pred1[v2010],col="black",pch=19,xlim=c(1968,2015))
-  points(ag.coordPickY[v2008],pred1[v2008],col="black",pch=17,xlim=c(1968,2015))
+  #points(ag.coordPickY[v2010],pred1[v2010],col="black",pch=19,xlim=c(1968,2015))
+  #points(ag.coordPickY[v2008],pred1[v2008],col="black",pch=17,xlim=c(1968,2015))
   
   #text(ag.coordPickY,pred1,labels=ag.coordPick$viruses,col="black",cex=0.8)
 
