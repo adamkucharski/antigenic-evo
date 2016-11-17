@@ -17,7 +17,7 @@ source("model_functions.R")  #Set up functions
 dataload="Fluscape_08"
 #dataload="Australia_98"
 
-landscape.build(dataload,d.step=0.5,extendD=5,bandW=22) # Generate maps
+landscape.build(dataload,d.step=0.25,extendD=5,bandW=22) # Generate maps
 
 # Plot data
 landscape.plot(dataload,radius1=5,yearload=2009,groupN=2)
