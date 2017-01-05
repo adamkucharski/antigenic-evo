@@ -1,5 +1,6 @@
 .Rproj.user
-.Rhistory
+*.Rhistory
 immunity_model/.Rhistory
 .DS_Store
 *.pdf
+*.png
