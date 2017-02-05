@@ -297,7 +297,9 @@ landscape.plot<-function(Data.load,radius1,yearload,groupN=3,circleShow=F){
     }
   }
   
-  dev.copy(png,paste("plots/antigenic_map",Data.load,".png",sep=""),width=1500,height=1800,res=180)
+  #dev.copy(png,paste("plots/antigenic_map",Data.load,".png",sep=""),width=1500,height=1800,res=180)
+  dev.copy(pdf,paste("plots/antigenic_map",Data.load,".pdf",sep=""),width=10,height=12)
+  
   dev.off()
 
 }
@@ -442,7 +444,8 @@ reproduction.number.plot<-function(Data.load,rR=2){
   text(tx1,strain_centre$AG_x,labels=strain_centre$year,col=rgb(1,1,1),cex=1.2)
   
   #title(main=LETTERS[3],adj=0)
-  dev.copy(png,paste("plots/reproduction_number_map",Data.load,".png",sep=""),width=1500,height=1200,res=180)
+  #dev.copy(png,paste("plots/reproduction_number_map",Data.load,".png",sep=""),width=1500,height=1200,res=180)
+  dev.copy(pdf,paste("plots/reproduction_number_map",Data.load,".pdf",sep=""),width=10,height=5)
   dev.off()
   
   #
