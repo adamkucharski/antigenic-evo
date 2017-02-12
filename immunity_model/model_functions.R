@@ -222,17 +222,17 @@ cross.validation <- function(Data.load,d.step=0.5,extendD=3,bandW=20, Nsamp = 10
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 # Plot titre landscape (load from above function)
 
-landscape.plot<-function(Data.load,radius1,yearload,groupN=3,circleShow=F){
+landscape.plot<-function(Data.load,radius1,yearload,groupN=3,circleShow=F,borderA=T){
   
   # Data.load=dataload; radius1=4; yearload=2009; groupN=2; circleShow=F
   
   load(paste("R_datasets/",Data.load,"_V.RData",sep=""))
-  
-  par(mfrow=c(groupN,1))
-  par(mgp=c(1.8,0.6,0))
-  
+
   for(kk in 1:groupN){
   
+    par(mfrow=c(1,1))
+    par(mgp=c(1.8,0.6,0))
+    
     load(paste("R_datasets/maps/AGmap_",Data.load,"_gp",kk,".RData",sep=""))  
   
     # Calculate mean titre for each sample strain
@@ -242,11 +242,9 @@ landscape.plot<-function(Data.load,radius1,yearload,groupN=3,circleShow=F){
     
     # Plot antigenic surface
 
-    if(kk<groupN){
-      par(mar = c(2,4,2,2))
-    }else{
-      par(mar = c(3,4,2,2))
-    }
+    #if(kk<groupN){  par(mar = c(2,4,2,2))  }else{ par(mar = c(3,4,2,2)) }
+    if(borderA==T){ par(mar = c(8,6,2,3)) }else{ par(mar = c(0,0,0,0)) }
+    
     MTx=c(332,372)
     MTy=c(245,262)
     
@@ -268,10 +266,14 @@ landscape.plot<-function(Data.load,radius1,yearload,groupN=3,circleShow=F){
     ofs=0.02
     tx1=strain_centre$AG_y
     tx1[1]=tx1[1]+1
-    text(tx1+ofs,strain_centre$AG_x-ofs,labels=strain_centre$year,col="white",cex=1.2)
-    text(tx1+2*ofs,strain_centre$AG_x-2*ofs,labels=strain_centre$year,col="white",cex=1.2)
+    #text(tx1+ofs,strain_centre$AG_x-ofs,labels=strain_centre$year,col="white",cex=1.2)
+    #text(tx1+2*ofs,strain_centre$AG_x-2*ofs,labels=strain_centre$year,col="white",cex=1.2)
     text(tx1,strain_centre$AG_x,labels=strain_centre$year,col="black",cex=1.2)
     
+    print(paste("plots/antigenic_map",Data.load,"_",kk,".png",sep=""))
+    if(borderA==T){widA=1400 }else{widA=1500 }
+    dev.copy(png,paste("plots/antigenic_map",Data.load,"_",kk,"_B",borderA,".png",sep=""),width=widA,height=800,res=250)
+    dev.off()
     
     # Plot circle of test points centred on (yearload-1)
     if(circleShow==T){
@@ -297,10 +299,9 @@ landscape.plot<-function(Data.load,radius1,yearload,groupN=3,circleShow=F){
     }
   }
   
-  #dev.copy(png,paste("plots/antigenic_map",Data.load,".png",sep=""),width=1500,height=1800,res=180)
-  dev.copy(pdf,paste("plots/antigenic_map",Data.load,".pdf",sep=""),width=10,height=12)
+  #dev.copy(pdf,paste("plots/antigenic_map",Data.load,".pdf",sep=""),width=10,height=12)
   
-  dev.off()
+
 
 }
 
@@ -351,7 +352,7 @@ strain_years <- function(){
   
 }
 
-reproduction.number.plot<-function(Data.load,rR=2){
+reproduction.number.plot<-function(Data.load,rR=2,borderA=T){
   
   r.matrix <- build.china.matrix(rR)
 
@@ -387,7 +388,8 @@ reproduction.number.plot<-function(Data.load,rR=2){
   # - - - - - 
   # Plot antigenic surface
   par(mfrow=c(1,1))
-  par(mar = c(4,4,2,2))
+  if(borderA==T){ par(mar = c(8,6,2,3)) }else{ par(mar = c(0,0,0,0)) }
+  
   #par(mgp=c(1.8,0.6,0))
   MTx=c(332,372)
   MTy=c(245,262)
@@ -439,13 +441,16 @@ reproduction.number.plot<-function(Data.load,rR=2){
   ofs=0.02
   tx1=strain_centre$AG_y
   tx1[1]=tx1[1]+1
-  text(tx1+ofs,strain_centre$AG_x-ofs,labels=strain_centre$year,col=rgb(0,0,0),cex=1.2)
-  text(tx1+2*ofs,strain_centre$AG_x-2*ofs,labels=strain_centre$year,col=rgb(0,0,0),cex=1.2)
-  text(tx1,strain_centre$AG_x,labels=strain_centre$year,col=rgb(1,1,1),cex=1.2)
+  #text(tx1+ofs,strain_centre$AG_x-ofs,labels=strain_centre$year,col=rgb(0,0,0),cex=1.2)
+  #text(tx1+2*ofs,strain_centre$AG_x-2*ofs,labels=strain_centre$year,col=rgb(0,0,0),cex=1.2)
+  #text(tx1,strain_centre$AG_x,labels=strain_centre$year,col=rgb(1,1,1),cex=1.2)
+  text(tx1,strain_centre$AG_x,labels=strain_centre$year,col=rgb(0,0,0),cex=1.2)
   
   #title(main=LETTERS[3],adj=0)
+  if(borderA==T){widA=1400 }else{widA=1500 }
+  dev.copy(png,paste("plots/reproduction_number_map",Data.load,"_B",borderA,".png",sep=""),width=widA,height=800,res=250)
   #dev.copy(png,paste("plots/reproduction_number_map",Data.load,".png",sep=""),width=1500,height=1200,res=180)
-  dev.copy(pdf,paste("plots/reproduction_number_map",Data.load,".pdf",sep=""),width=10,height=5)
+  #dev.copy(pdf,paste("plots/reproduction_number_map",Data.load,".pdf",sep=""),width=5,height=3)
   dev.off()
   
   #
