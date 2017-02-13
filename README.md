@@ -1,3 +1,3 @@
-# antigenic-landscapes
+# antigenic-evo
 
 Analysis of influenza population immunity
