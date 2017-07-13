@@ -1,5 +1,6 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-# Code by Adam Kucharski (2016)
+# Function code to accompany
+# Kucharski AJ, Baguelin M. The role of human immunity and social behavior in shaping influenza evolution. PLOS Pathogens
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 # Build antigenic landscape from data 
@@ -310,7 +311,7 @@ landscape.plot<-function(Data.load,radius1,yearload,groupN=3,circleShow=F,border
 
 build.china.matrix<-function(r0=2){
   
-  contacts <- data.frame(read.csv("datasets/fluscape_participant_contact_aggr_v1b.csv",stringsAsFactors = F))
+  contacts <- data.frame(read.csv("datasets/china_social_contacts.csv",stringsAsFactors = F))
   npart <- length(contacts$age)
   
   age.list=as.numeric(contacts$age)

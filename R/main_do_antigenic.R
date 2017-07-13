@@ -1,19 +1,21 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-# Code by Adam Kucharski (2016-)
+# Main code to accompany
+# Kucharski AJ, Baguelin M. The role of human immunity and social behavior in shaping influenza evolution. PLOS Pathogens
 
 library(plot3D)
 library(colorspace)
 library(plotly)
 library(magrittr)
 
+rm(list=ls())
+
 # LOAD Functions
 
-setwd("~/Documents/antigenic-landscapes/immunity_model/")
-#setwd("/Users/marcbaguelin/GitHub/antigenic-landscapes/immunity_model/")
+setwd("~/Documents/antigenic-evo/R/")
 source("model_functions.R")  #Set up functions
 
 # Define dataset to load
-dataload="Fluscape_08"
+dataload="China_08"
 
 # - - - - - - - - - - - - 
 # Generate maps
