@@ -11,7 +11,3 @@ Kucharski AJ, Baguelin M. The role of human immunity and social behavior in shap
 `main_do_antigenic.R` Main model fitting and plotting code - calls following source file:
 
 > `model_functions.R` Compiles landscapes and plots reproduction numbers 
-
-### Data files
-
-[1] note_content

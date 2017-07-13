@@ -1,6 +1,7 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 # Main code to accompany
 # Kucharski AJ, Baguelin M. The role of human immunity and social behavior in shaping influenza evolution. PLOS Pathogens
+#
 
 library(plot3D)
 library(colorspace)
@@ -18,7 +19,7 @@ source("model_functions.R")  #Set up functions
 dataload="China_08"
 
 # - - - - - - - - - - - - 
-# Generate maps
+# Generate antigenic maps
 landscape.build(dataload,d.step=0.25,extendD=5,bandW=22) 
 
 
